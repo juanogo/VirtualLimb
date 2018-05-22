@@ -1,0 +1,92 @@
+Guia de Usuario Ubuntu 14.04 LTS ViLimbs
+
+Software Requerido:
+OpenCV 2.4.11
+Aruco 1.3.0
+Ogre 1.9.0
+
+Instalacion OpenCV 2.4.11
+La instalación de esta libreria, tiene dos formas: la primera a traves del manejador de paquetes (apt) y la segunda, a través de la compilación directa del código fuente, la cual es la recomendad por el autor. Esta sección explicará el segundo método de instalación.
+
+Primero se deben instalar los paquetes por defecto requeridos para la compilación del código fuente, esto es gcc, python y los codecs ffmpeg (se supone que el lector posee permisos de administrador de la maquina ya que serán necesarios para completar el proceso:
+
+$ sudo apt-get install build-essential
+$ sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev cmake ccmake-gui
+$ sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+
+Desacargamos el codigo fuente de http://sourceforge.net/projects/opencvlibrary/files/opencv-unix/
+especificamente la version 2.4.11 (2.4.9 tambien funciona)
+
+Descomprimimos el archivo donde queremos instalarla y procedemos con:
+
+$ cd opencv_folder/
+$ mkdir build
+$ ccmake ../
+
+En este momento debemos verificar que cmake encuentra todas las dependencias como python, libpng, etc. Si todo va bien le damos “configure” con la tecla C, dos veces, y finalmente generamos el makefile con la tecla G. Una vez generado el archivo podemos compilarlo e instalarlo:
+
+$ make
+$ sudo make install
+
+El proceso durara de 10-30 minutos dependiendo la configuracion del equipo base.
+
+Instalacion de libreria de marcadores Aruco
+ViLimbs hace uso extensivo de los marcadores fiduciarios, los cuales requieren de una libreria extra conocida como Aruco de libre distribucion LGPL y que se puede descargar de http://sourceforge.net/projects/aruco/files/
+
+Una vez descargada, descomprimimos el archivo y procedemos a compilar el proyecto de la siguiente forma:
+
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+$ sudo make install
+
+Se puede optar por probar uno de sus ejemplos como dice su Readme file descargando el paquete opcional de datos de http://sourceforge.net/projects/aruco/files/testdata/
+
+3. Instalación Ogre
+Ogre es el motor gráfico usado por la solución para el despliegue de los elementos virtuales, su instalación es muy sencilla y es soportada por el manejador de paquetes apt, bastando solo un comando para su instalación:
+
+$ sudo apt-get install libogre-1.9-dev
+
+Calibracion Camara
+
+Una vez se tiene todo listo, es necesario calibrar la cámara a usar. El cual es el proceso de obtención de los parámetros intrínsecos de la cámara  con el fin de corregir las aberraciones de la imagen que son agregadas por los distintos lentes que la componen. En este caso OpenCV ofrece una forma de hacerlo fácilmente. Sólo es necesario mostrar imágenes de un panel de un tablero de ajedrez de dimensiones conocidas (adjunto pdf para su impresion) y la toma de varias fotos desde distintas poses del tablero, dando como resultado un archivo .yml que sera usado por el aplicativo. Es importante mencionar que cada camara requiere si o si de una calibracion debido a que un lente nunca es igual a otro.
+
+$ calibration  -w 8 -h 6 -s 0.025 -o camera.yml -op
+
+Este ejecutable se encuentra dentro de los ejemplos de opencv, en la carpeta build, los cuales debieron ser obtenidos en el paso 1.
+
+Fig. 2. Ejemplo de las distintas poses del tablero de ajedrez (Screenshot tomado del proyecto Aruco versión web).
+
+Compilacion ViLimbs
+
+ViLimbs al igual que opencv y aruco, hace uso de cmake para facilitar las tareas de compilación al usuario. Por lo tanto, solo es necesario usar el archivo de código fuente (previamente descomprimido en una carpeta) adjunto a esta guia y seguir el mismo proceso de compilación mencionado, esto es:
+
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+
+Ejecución ViLimbs
+Una vez calibrada nuestra cámara podremos ejecutar el proyecto de la siguiente forma:
+
+$ ./aruco_test_anim_c930e live ../../c930e_transpose_fhd.yml 0.076
+
+donde el primer argumento indica el uso del streaming de la cámara, el segundo la ruta donde se encuentra el archivo de calibración de dicha cámara y el último la medida del marcado impreso en mts.
+
+Obteniendo la siguiente pantalla de configuración del motor:
+
+Fig. 2. Seleccion de parametros de Ogre.
+
+Una vez escogidos los parametros de resolución y recursos segun la maquina de ejecución podremos ver ViLimbs en ejecución:
+
+
+
+Fig. 3. Ejemplo de ejecución de ViLimbs.
+
+
+8. Autores
+
+Esteban Correa-Agudelo - esteban.correa@bios.co
+Carlos Ferrin - carlos.ferrin@bios.co
+Juan Diego Gomez - juan.gomez@bios.co
